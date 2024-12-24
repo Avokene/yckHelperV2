@@ -3,6 +3,8 @@
     "@discordjs/rest": "2.4.0",
     "discord-api-types": "0.37.103",
     "discord.js": "14.16.3",
-    "googleapis": "144.0.0"
+    "dotenv": "16.4.7",
+    "googleapis": "144.0.0",
+    "node-cron": "3.0.3"
   }
 }
