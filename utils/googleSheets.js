@@ -4,11 +4,7 @@ const path = require("path");
 require("dotenv").config();
 
 // 서비스 계정 키 파일 경로
-const KEY_FILE_PATH = path.join(
-  __dirname,
-  "../keys",
-  "axial-feat-432809-k6-0e527d209714.json"
-);
+const KEY_FILE_PATH = path.join(__dirname, "../keys", "google_service.json");
 
 // 인증 설정
 const auth = new google.auth.GoogleAuth({
