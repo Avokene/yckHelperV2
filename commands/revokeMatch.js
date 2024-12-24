@@ -33,7 +33,7 @@ module.exports = {
 
       // Google Sheets 데이터 가져오기
       const sheets = await getSheetClient();
-      const range = "Sheet1!A2:D"; // 데이터가 저장된 범위
+      const range = "RECORDS!A2:D"; // 데이터가 저장된 범위
       const sheetData = await readFromSheet(range);
 
       // match_id로 데이터 검색
@@ -51,7 +51,7 @@ module.exports = {
         sheetData[matchIndex];
 
       // Google Sheets에서 데이터 삭제
-      await deleteFromSheet("Sheet1", matchIndex + 2); // matchIndex는 0부터 시작, 헤더를 고려하여 +2
+      await deleteFromSheet("RECORDS", matchIndex + 2); // matchIndex는 0부터 시작, 헤더를 고려하여 +2
 
       // 전적 복구 로직 (team1, team2 데이터를 복구)
       // Discord ID로 전적 복구
