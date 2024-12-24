@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require("discord.js");
-let ongoingMatches = require("../utils/ongoingMatches"); // 진행 중인 내전 데이터 가져오기
+let ongoingMatches = require("../utils/onGoingMatches"); // 진행 중인 내전 데이터 가져오기
 
 module.exports = {
   name: "팀원추가",
