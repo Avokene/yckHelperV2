@@ -26,12 +26,14 @@ const loadMatchCounter = () => {
   if (!fs.existsSync(counterPath)) {
     return 1; // 초기 값
   }
-  return JSON.parse(fs.readFileSync(counterPath, "utf8"));
+  const data = JSON.parse(fs.readFileSync(counterPath, "utf8"));
+  return data.lastMatchId || 1; // lastMatchId 값 반환
 };
 
 // 카운터 저장
 const saveMatchCounter = (counter) => {
-  fs.writeFileSync(counterPath, JSON.stringify(counter, null, 2));
+  const data = { lastMatchId: counter };
+  fs.writeFileSync(counterPath, JSON.stringify(data, null, 2));
 };
 
 let ongoingMatches = loadOngoingMatches();
