@@ -101,12 +101,12 @@ module.exports = {
       // 팀 참가 버튼 생성
       const team1Button = new ButtonBuilder()
         .setCustomId(`join_team1_${matchId}`)
-        .setLabel("팀 1에 참가하기")
+        .setLabel(`팀 ${team2LeaderDisplayName} 참가하기`)
         .setStyle(ButtonStyle.Primary);
 
       const team2Button = new ButtonBuilder()
         .setCustomId(`join_team2_${matchId}`)
-        .setLabel("팀 2에 참가하기")
+        .setLabel(`팀 ${team2LeaderDisplayName} 참가하기`)
         .setStyle(ButtonStyle.Danger);
 
       const actionRow = new ActionRowBuilder().addComponents(
