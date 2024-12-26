@@ -3,6 +3,7 @@ const {
   getSheetClient,
   readFromSheet,
   deleteFromSheet,
+  revokeStats,
 } = require("../utils/googleSheets");
 const hasAdminPermission = require("../utils/checkAdmin"); // 관리자 권한 확인 함수
 
@@ -58,11 +59,11 @@ module.exports = {
       const team1Members = team1Ids.split(", ");
       const team2Members = team2Ids.split(", ");
       const winningTeam = winner === "팀1" ? team1Members : team2Members;
+      const lossingTeam = winner === "팀1" ? team2Members : team1Members;
 
       // 전적 복구 로직 수행
       await Promise.all([
-        ...team1Members.map(async (member) => adjustRecord(member, false)), // 팀 1 패배 복구
-        ...team2Members.map(async (member) => adjustRecord(member, false)), // 팀 2 패배 복구
+        ...lossingTeam.map(async (member) => adjustRecord(member, false)), // 패배 복구
         ...winningTeam.map(async (member) => adjustRecord(member, true)), // 승리 복구
       ]);
 
@@ -100,4 +101,7 @@ async function adjustRecord(member, isWin) {
   console.log(
     `Adjusting record for ${member}: ${isWin ? "Win -1" : "Loss -1"}`
   );
+
+  // Google Sheets에서 전적 복구
+  await revokeStats(member, isWin);
 }

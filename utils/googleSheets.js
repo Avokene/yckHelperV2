@@ -106,7 +106,7 @@ async function searchUserRecordById(userId) {
 // 전적 업데이트
 async function updateStats(userId, isWin) {
   const sheets = await getSheetClient();
-  const range = "Sheet1!A2:G"; // 전적 데이터 범위 (전체 데이터)
+  const range = "STATS!A2:G"; // 전적 데이터 범위 (전체 데이터)
 
   // Google Sheets 데이터 가져오기
   const response = await sheets.spreadsheets.values.get({
@@ -145,6 +145,46 @@ async function updateStats(userId, isWin) {
   });
 }
 
+async function revokeStats(userId, isWin) {
+  const sheets = await getSheetClient();
+  const range = "STATS!A2:G"; // 전적 데이터 범위 (전체 데이터)
+
+  // Google Sheets 데이터 가져오기
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId: SHEET_ID,
+    range,
+  });
+
+  const rows = response.data.values;
+
+  // 사용자 검색 및 업데이트
+  for (let i = 0; i < rows.length; i++) {
+    if (rows[i][2] === userId) {
+      // user_id와 매칭
+      const wins = parseInt(rows[i][3]) || 0; // 전체 승리
+      const losses = parseInt(rows[i][4]) || 0; // 전체 패배
+      const winsSeason = parseInt(rows[i][5]) || 0; // 시즌 승리
+      const lossesSeason = parseInt(rows[i][6]) || 0; // 시즌 패배
+
+      if (isWin) {
+        rows[i][3] = (wins - 1).toString(); // 전체 승리 감소
+        rows[i][5] = (winsSeason - 1).toString(); // 시즌 승리 감소
+      } else {
+        rows[i][4] = (losses - 1).toString(); // 전체 패배 감소
+        rows[i][6] = (lossesSeason - 1).toString(); // 시즌 패배 감소
+      }
+      break;
+    }
+  }
+  // 업데이트된 데이터 다시 저장
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: SHEET_ID,
+    range,
+    valueInputOption: "USER_ENTERED",
+    resource: { values: rows },
+  });
+}
+
 module.exports = {
   getSheetClient,
   readFromSheet,
@@ -153,4 +193,5 @@ module.exports = {
   deleteFromSheet,
   updateSheet,
   updateStats,
+  revokeStats,
 };

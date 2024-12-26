@@ -1,5 +1,15 @@
 const { EmbedBuilder } = require("discord.js");
-const ongoingMatches = require("../utils/onGoingMatches"); // 진행 중인 내전 데이터 가져오기
+const fs = require("fs");
+const path = require("path");
+const ongoingMatchesPath = path.join(__dirname, "../data/ongoingMatches.json");
+
+// 진행 중인 내전 데이터 로드
+const loadOngoingMatches = () => {
+  if (!fs.existsSync(ongoingMatchesPath)) {
+    return {};
+  }
+  return JSON.parse(fs.readFileSync(ongoingMatchesPath, "utf8"));
+};
 
 module.exports = {
   name: "팀",
@@ -14,7 +24,8 @@ module.exports = {
   ],
   async execute(interaction) {
     try {
-      const matchId = interaction.options.getInteger("match_id");
+      const ongoingMatches = loadOngoingMatches();
+      const matchId = interaction.options.getInteger("match_id").toString();
 
       // 진행 중인 내전 확인
       const match = ongoingMatches[matchId];

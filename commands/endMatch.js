@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require("discord.js");
-const { writeToSheet } = require("../utils/googleSheets"); // Google Sheets 기록 함수
+const { writeToSheet, updateStats } = require("../utils/googleSheets"); // Google Sheets 기록 함수
 const fs = require("fs");
 const path = require("path");
 const ongoingMatchesPath = path.join(__dirname, "../data/ongoingMatches.json");
@@ -44,7 +44,7 @@ module.exports = {
   ],
   async execute(interaction) {
     try {
-      const matchId = interaction.options.getInteger("match_id");
+      const matchId = interaction.options.getInteger("match_id").toString();
       const winningTeamOption = interaction.options.getInteger("winning_team");
       const userId = interaction.user.id;
 
@@ -87,6 +87,10 @@ module.exports = {
       // 팀원 정보 구성
       const team1Members = await Promise.all(
         match.team1.map(async (userId) => {
+          // 승리 팀 플레이어의 승리 횟수 업데이트
+          if(winningTeam === "팀1") await updateStats(userId, true);
+          else await updateStats(userId, false);
+
           const member = await interaction.guild.members.fetch(userId);
           return { id: userId, displayName: member.displayName };
         })
@@ -94,6 +98,8 @@ module.exports = {
 
       const team2Members = await Promise.all(
         match.team2.map(async (userId) => {
+          if(winningTeam === "팀2") await updateStats(userId, true);
+          else await updateStats(userId, false);
           const member = await interaction.guild.members.fetch(userId);
           return { id: userId, displayName: member.displayName };
         })

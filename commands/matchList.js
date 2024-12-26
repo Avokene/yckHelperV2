@@ -1,13 +1,25 @@
 const { EmbedBuilder } = require("discord.js");
-const ongoingMatches = require("../utils/onGoingMatches"); // 진행 중인 내전 데이터 가져오기
+const fs = require("fs");
+const path = require("path");
+const ongoingMatchesPath = path.join(__dirname, "../data/ongoingMatches.json");
+
+// 진행 중인 내전 데이터 로드
+const loadOngoingMatches = () => {
+  if (!fs.existsSync(ongoingMatchesPath)) {
+    return {};
+  }
+  return JSON.parse(fs.readFileSync(ongoingMatchesPath, "utf8"));
+};
 
 module.exports = {
   name: "내전목록",
   description: "현재 진행 중인 모든 내전을 확인합니다.",
   async execute(interaction) {
     try {
-      // 진행 중인 내전 목록 확인
+      // 최신 ongoingMatches 로드
+      const ongoingMatches = loadOngoingMatches();
       const matchIds = Object.keys(ongoingMatches);
+      const guild = interaction.guild;
 
       if (matchIds.length === 0) {
         await interaction.reply({
@@ -23,14 +35,17 @@ module.exports = {
         .setTitle("현재 진행 중인 내전 목록")
         .setDescription("현재 활성화된 모든 내전 정보를 확인하세요.");
 
-      matchIds.forEach((matchId) => {
+      for (const matchId of matchIds) {
         const match = ongoingMatches[matchId];
+        const team1LeaderName = await guild.members.fetch(match.team1LeaderId).displayName; // 팀장 ID를 이름으로 변환
+        const team2LeaderName = await guild.members.fetch(match.team2LeaderId).displayName; // 팀장 ID를 이름으로 변환
+
         embed.addFields({
           name: `내전 ID: ${matchId}`,
-          value: `**내전 이름:** ${match.matchName}\n**팀 1 팀장:** ${match.team1Leader}\n**팀 2 팀장:** ${match.team2Leader}`,
+          value: `**내전 이름:** ${match.matchName}\n**팀 1 팀장:** ${team1LeaderName}\n**팀 2 팀장:** ${team2LeaderName}`,
           inline: false,
         });
-      });
+      }
 
       await interaction.reply({ embeds: [embed] });
     } catch (error) {
