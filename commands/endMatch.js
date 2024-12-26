@@ -1,12 +1,29 @@
 const { EmbedBuilder } = require("discord.js");
 const { writeToSheet } = require("../utils/googleSheets"); // Google Sheets 기록 함수
-const ongoingMatches = require("../utils/onGoingMatches"); // 진행 중인 내전 데이터 가져오기
+const fs = require("fs");
+const path = require("path");
+const ongoingMatchesPath = path.join(__dirname, "../data/ongoingMatches.json");
 const hasAdminPermission = require("../utils/checkAdmin"); // 관리자 권한 확인 함수
+
+// 진행 중인 내전 데이터 로드
+const loadOngoingMatches = () => {
+  if (!fs.existsSync(ongoingMatchesPath)) {
+    return {};
+  }
+  return JSON.parse(fs.readFileSync(ongoingMatchesPath, "utf8"));
+};
+
+// 진행 중인 내전 데이터 저장
+const saveOngoingMatches = (data) => {
+  fs.writeFileSync(ongoingMatchesPath, JSON.stringify(data, null, 2));
+};
+
+let ongoingMatches = loadOngoingMatches();
 
 module.exports = {
   name: "내전종료",
   description:
-    "내전을 종료하고 결과를 기록합니다. 관리자 권한이 있는 사용자나 지정된 ID는 승리 팀을 지정할 수 있습니다.",
+    "내전을 종료하고 결과를 기록합니다. 관리자 권한이 있는 사용자나 팀장이 승리 팀을 지정할 수 있습니다.",
   options: [
     {
       name: "match_id",
@@ -68,23 +85,19 @@ module.exports = {
       }
 
       // 팀원 정보 구성
-      const team1Members = match.team1.map((member) => member);
-      const team2Members = match.team2.map((member) => member);
+      const team1Members = await Promise.all(
+        match.team1.map(async (userId) => {
+          const member = await interaction.guild.members.fetch(userId);
+          return { id: userId, displayName: member.displayName };
+        })
+      );
 
-      // 전적 업데이트
-      const winningTeamMembers =
-        winningTeam === "팀1" ? team1Members : team2Members;
-      const losingTeamMembers =
-        winningTeam === "팀1" ? team2Members : team1Members;
-
-      await Promise.all([
-        ...winningTeamMembers.map(
-          async (member) => updateStats(member.id, true) // 승리 업데이트
-        ),
-        ...losingTeamMembers.map(
-          async (member) => updateStats(member.id, false) // 패배 업데이트
-        ),
-      ]);
+      const team2Members = await Promise.all(
+        match.team2.map(async (userId) => {
+          const member = await interaction.guild.members.fetch(userId);
+          return { id: userId, displayName: member.displayName };
+        })
+      );
 
       // Google Sheets에 결과 기록
       const matchData = [
@@ -98,7 +111,7 @@ module.exports = {
         ],
       ];
 
-      await writeToSheet("RECORDS!A2:F", matchData); // Google Sheets 범위 지정
+      await writeToSheet("RECORDS!A2:F", matchData);
 
       // 내전 종료 메시지
       const embed = new EmbedBuilder()
@@ -107,16 +120,21 @@ module.exports = {
         .setDescription(
           `**내전 ID:** ${matchId}\n` +
             `**승리 팀:** ${winningTeam} (${
-              winningTeam === "팀1" ? match.team1Leader : match.team2Leader
+              winningTeam === "팀1"
+                ? match.team1LeaderId
+                : match.team2LeaderId
             })\n` +
-            `**팀 1 인원:** ${team1Members || "없음"}\n` +
-            `**팀 2 인원:** ${team2Members || "없음"}`
+            `**팀 1 인원:** ${team1Members.map((m) => m.displayName).join(", ") ||
+              "없음"}\n` +
+            `**팀 2 인원:** ${team2Members.map((m) => m.displayName).join(", ") ||
+              "없음"}`
         );
 
       await interaction.reply({ embeds: [embed] });
 
       // 내전 데이터 삭제
       delete ongoingMatches[matchId];
+      saveOngoingMatches(ongoingMatches);
     } catch (error) {
       console.error("Error ending match:", error);
       await interaction.reply({
