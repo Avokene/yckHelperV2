@@ -177,6 +177,9 @@ module.exports = {
       collector.on("end", async () => {
         ongoingMatches = loadOngoingMatches();
         const currentMatch = ongoingMatches[matchId];
+        if (!currentMatch) {
+          return;
+        }
 
         const team1Names = await Promise.all(
           currentMatch.team1.map(async (userId) => {
