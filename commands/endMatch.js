@@ -90,6 +90,21 @@ module.exports = {
       // 팀원 정보 구성
       await batchUpdateStats(match.team1, match.team2, winningTeam);
 
+      // 팀원 이름 가져오기
+      const team1Members = await Promise.all(
+        match.team1.map(async (id) => {
+          const member = await interaction.guild.members.fetch(id);
+          return { id: id, displayName: member.displayName };
+        })
+      );
+
+      const team2Members = await Promise.all(
+        match.team2.map(async (id) => {
+          const member = await interaction.guild.members.fetch(id);
+          return { id: id, displayName: member.displayName };
+        })
+      );
+
       // Google Sheets에 결과 기록
       const matchData = [
         [
