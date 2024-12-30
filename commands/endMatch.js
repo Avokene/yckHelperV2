@@ -89,22 +89,23 @@ module.exports = {
 
       // 팀원 정보 구성
       const team1Members = await Promise.all(
-        match.team1.map(async (userId) => {
+        match.team1.map(async (id) => {
           // 승리 팀 플레이어의 승리 횟수 업데이트
-          if (winningTeam === "팀1") await updateStats(userId, true);
-          else await updateStats(userId, false);
-
-          const member = await interaction.guild.members.fetch(userId);
-          return { id: userId, displayName: member.displayName };
+          if (winningTeam === "팀1") await updateStats(id, true);
+          else await updateStats(id, false);
+          console.log("Updated stats for", id);
+          const member = await interaction.guild.members.fetch(id);
+          return { id: id, displayName: member.displayName };
         })
       );
 
       const team2Members = await Promise.all(
-        match.team2.map(async (userId) => {
-          if (winningTeam === "팀2") await updateStats(userId, true);
-          else await updateStats(userId, false);
-          const member = await interaction.guild.members.fetch(userId);
-          return { id: userId, displayName: member.displayName };
+        match.team2.map(async (id) => {
+          if (winningTeam === "팀2") await updateStats(id, true);
+          else await updateStats(id, false);
+          console.log("Updated stats for", id);
+          const member = await interaction.guild.members.fetch(id);
+          return { id: id, displayName: member.displayName };
         })
       );
 

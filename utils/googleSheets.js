@@ -152,6 +152,7 @@ async function updateStats(userId, isWin) {
         rows[i][6] = (lossesSeason + 1).toString(); // 시즌 패배 증가
       }
       updated = true;
+      break;
     }
   }
 
@@ -198,6 +199,7 @@ async function revokeStats(userId, isWin) {
         rows[i][6] = (lossesSeason - 1).toString(); // 시즌 패배 감소
       }
       updated = true;
+      break;
     }
   }
 
