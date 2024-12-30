@@ -132,7 +132,7 @@ async function updateStats(userId, isWin) {
     range,
   });
 
-  const rows = response.data.values;
+  let rows = response.data.values;
 
   // 사용자 검색 및 업데이트
   for (let i = 0; i < rows.length; i++) {
