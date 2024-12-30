@@ -1,6 +1,23 @@
 const { EmbedBuilder } = require("discord.js");
-const ongoingMatches = require("../utils/onGoingMatches"); // 진행 중인 내전 데이터 가져오기
+const fs = require("fs");
+const path = require("path");
+const ongoingMatchesPath = path.join(__dirname, "../data/ongoingMatches.json");
 const hasAdminPermission = require("../utils/checkAdmin"); // 관리자 권한 확인 함수
+
+// 진행 중인 내전 데이터 로드
+const loadOngoingMatches = () => {
+  if (!fs.existsSync(ongoingMatchesPath)) {
+    return {};
+  }
+  return JSON.parse(fs.readFileSync(ongoingMatchesPath, "utf8"));
+};
+
+// 진행 중인 내전 데이터 저장
+const saveOngoingMatches = (data) => {
+  fs.writeFileSync(ongoingMatchesPath, JSON.stringify(data, null, 2));
+};
+
+let ongoingMatches = loadOngoingMatches();
 
 module.exports = {
   name: "내전삭제",
@@ -15,7 +32,8 @@ module.exports = {
   ],
   async execute(interaction) {
     try {
-      const matchId = interaction.options.getInteger("match_id");
+      ongoingMatches = loadOngoingMatches();
+      const matchId = interaction.options.getInteger("match_id").toString();
 
       // 관리자 권한 확인
       if (!hasAdminPermission(interaction)) {
