@@ -74,7 +74,7 @@ async function getSheetId(sheetName) {
   });
 
   const sheet = spreadsheet.data.sheets.find(
-    (s) => s.properties.title === sheetName
+    (s) => s.properties.title == sheetName
   );
 
   if (!sheet) {
@@ -106,7 +106,7 @@ async function searchUserRecordById(userId) {
 
   const rows = response.data.values || [];
   // 첫 번째 행(헤더)을 제외하고 검색
-  const userRecord = rows.slice(1).find((row) => row[2] === userId); // Discord ID가 3번째 열 (user_id)
+  const userRecord = rows.slice(1).find((row) => row[2] == userId); // Discord ID가 3번째 열 (user_id)
   if (userRecord) {
     return {
       id: userRecord[0],
@@ -124,7 +124,7 @@ async function searchUserRecordById(userId) {
 // 전적 업데이트
 async function updateStats(userId, isWin) {
   const sheets = await getSheetClient();
-  const range = "STATS!A2:G"; // 전적 데이터 범위 (전체 데이터)
+  const range = "STATS!A:G"; // 전적 데이터 범위 (전체 데이터)
 
   // Google Sheets 데이터 가져오기
   const response = await sheets.spreadsheets.values.get({
@@ -136,7 +136,7 @@ async function updateStats(userId, isWin) {
 
   // 사용자 검색 및 업데이트
   for (let i = 0; i < rows.length; i++) {
-    if (rows[i][2] === userId) {
+    if (rows[i][2] == userId) {
       // user_id와 매칭
       const wins = parseInt(rows[i][3]) || 0; // 전체 승리
       const losses = parseInt(rows[i][4]) || 0; // 전체 패배
@@ -173,11 +173,11 @@ async function revokeStats(userId, isWin) {
     range,
   });
 
-  const rows = response.data.values;
+  let rows = response.data.values;
 
   // 사용자 검색 및 업데이트
   for (let i = 0; i < rows.length; i++) {
-    if (rows[i][2] === userId) {
+    if (rows[i][2] == userId) {
       // user_id와 매칭
       const wins = parseInt(rows[i][3]) || 0; // 전체 승리
       const losses = parseInt(rows[i][4]) || 0; // 전체 패배
@@ -193,14 +193,14 @@ async function revokeStats(userId, isWin) {
       }
       break;
     }
-    // 업데이트된 데이터 다시 저장
-    await sheets.spreadsheets.values.update({
-      spreadsheetId: SHEET_ID,
-      range,
-      valueInputOption: "USER_ENTERED",
-      resource: { values: rows },
-    });
   }
+  // 업데이트된 데이터 다시 저장
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: SHEET_ID,
+    range,
+    valueInputOption: "USER_ENTERED",
+    resource: { values: rows },
+  });
 }
 
 module.exports = {
