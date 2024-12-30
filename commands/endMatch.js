@@ -19,6 +19,7 @@ const saveOngoingMatches = (data) => {
 };
 
 let ongoingMatches = loadOngoingMatches();
+console.log("Loaded Ongoing Matches:", ongoingMatches);
 
 module.exports = {
   name: "내전종료",
@@ -88,7 +89,7 @@ module.exports = {
       const team1Members = await Promise.all(
         match.team1.map(async (userId) => {
           // 승리 팀 플레이어의 승리 횟수 업데이트
-          if(winningTeam === "팀1") await updateStats(userId, true);
+          if (winningTeam === "팀1") await updateStats(userId, true);
           else await updateStats(userId, false);
 
           const member = await interaction.guild.members.fetch(userId);
@@ -98,7 +99,7 @@ module.exports = {
 
       const team2Members = await Promise.all(
         match.team2.map(async (userId) => {
-          if(winningTeam === "팀2") await updateStats(userId, true);
+          if (winningTeam === "팀2") await updateStats(userId, true);
           else await updateStats(userId, false);
           const member = await interaction.guild.members.fetch(userId);
           return { id: userId, displayName: member.displayName };
@@ -127,13 +128,15 @@ module.exports = {
           `**내전 ID:** ${matchId}\n` +
             `**승리 팀:** ${winningTeam} (${
               winningTeam === "팀1"
-                ? match.team1LeaderId
-                : match.team2LeaderId
+                ? team1Members[0].displayName
+                : team2Members[0].displayName
             })\n` +
-            `**팀 1 인원:** ${team1Members.map((m) => m.displayName).join(", ") ||
-              "없음"}\n` +
-            `**팀 2 인원:** ${team2Members.map((m) => m.displayName).join(", ") ||
-              "없음"}`
+            `**팀 1 인원:** ${
+              team1Members.map((m) => m.displayName).join(", ") || "없음"
+            }\n` +
+            `**팀 2 인원:** ${
+              team2Members.map((m) => m.displayName).join(", ") || "없음"
+            }`
         );
 
       await interaction.reply({ embeds: [embed] });
