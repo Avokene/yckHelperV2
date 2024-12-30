@@ -51,7 +51,8 @@ module.exports = {
         sheetData[matchIndex] || [];
 
       // 데이터 검증
-      if (!winner) {
+      if (!team1Ids || !team2Ids || !winner) {
+        console.log(sheetData[matchIndex]);
         await interaction.reply({
           content: `❌ 내전 ID ${matchId}에 대한 데이터가 불완전합니다. Google Sheets 데이터를 확인하세요.`,
           ephemeral: true,
