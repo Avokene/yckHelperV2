@@ -39,9 +39,19 @@ module.exports = {
 
       // 팀 구성 가져오기
       const team1Members =
-        match.team1.map((member) => member.displayName).join(", ") || "없음";
+        match.team1
+          .map(async (member) => {
+            let displayName = await interaction.guild.members.fetch(member);
+            return displayName;
+          })
+          .join(", ") || "없음";
       const team2Members =
-        match.team2.map((member) => member.displayName).join(", ") || "없음";
+        match.team2
+          .map(async (member) => {
+            let displayName = await interaction.guild.members.fetch(member);
+            return displayName;
+          })
+          .join(", ") || "없음";
 
       // Embed 메시지 생성
       const embed = new EmbedBuilder()
