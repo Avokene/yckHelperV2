@@ -34,7 +34,7 @@ module.exports = {
 
       // Google Sheets 데이터 가져오기
       const sheets = await getSheetClient();
-      const range = "RECORDS!A2:D"; // 데이터가 저장된 범위
+      const range = "RECORDS!A2:F"; // 데이터가 저장된 범위
       const sheetData = await readFromSheet(range);
 
       // match_id로 데이터 검색
