@@ -56,6 +56,7 @@ module.exports = {
 
       // 내전 삭제
       delete ongoingMatches[matchId];
+      saveOngoingMatches(ongoingMatches);
 
       // 성공 메시지
       const embed = new EmbedBuilder()
