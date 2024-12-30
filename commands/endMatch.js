@@ -45,6 +45,7 @@ module.exports = {
   ],
   async execute(interaction) {
     try {
+      await interaction.deferReply({ ephemeral: true }); // 지연 응답 설정
       ongoingMatches = loadOngoingMatches();
       const matchId = interaction.options.getInteger("match_id").toString();
       const winningTeamOption = interaction.options.getInteger("winning_team");
@@ -53,7 +54,7 @@ module.exports = {
       // 진행 중인 내전 확인
       const match = ongoingMatches[matchId];
       if (!match) {
-        await interaction.reply({
+        await interaction.editReply({
           content: `❌ 내전 ID ${matchId}에 해당하는 진행 중인 내전을 찾을 수 없습니다.`,
           ephemeral: true,
         });
@@ -77,7 +78,7 @@ module.exports = {
         }
 
         if (!winningTeam) {
-          await interaction.reply({
+          await interaction.editReply({
             content:
               "❌ 이 명령어는 팀장만 사용할 수 있습니다. (관리자는 승리 팀을 지정할 수 있습니다.)",
             ephemeral: true,
@@ -140,7 +141,7 @@ module.exports = {
             }`
         );
 
-      await interaction.reply({ embeds: [embed] });
+      await interaction.editReply({ embeds: [embed] });
 
       // 내전 데이터 삭제
       delete ongoingMatches[matchId];
