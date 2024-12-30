@@ -169,6 +169,58 @@ async function updateStats(userId, isWin) {
   });
 }
 
+async function batchUpdateStats(team1, team2, winningTeam) {
+  const sheets = await getSheetClient();
+  const range = "STATS!A:G"; // 전적 데이터 범위
+
+  // Google Sheets 데이터 가져오기
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId: SHEET_ID,
+    range,
+  });
+
+  let rows = response.data.values;
+
+  // 팀 1과 팀 2 업데이트
+  const allUsers = [...team1, ...team2];
+
+  allUsers.forEach((userId) => {
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i][2] == userId) {
+        // user_id와 매칭
+        const wins = parseInt(rows[i][3]) || 0;
+        const losses = parseInt(rows[i][4]) || 0;
+        const winsSeason = parseInt(rows[i][5]) || 0;
+        const lossesSeason = parseInt(rows[i][6]) || 0;
+
+        // 승리 팀 및 패배 팀 업데이트
+        if (winningTeam === "팀1" && team1.includes(userId)) {
+          rows[i][3] = (wins + 1).toString();
+          rows[i][5] = (winsSeason + 1).toString();
+        } else if (winningTeam === "팀2" && team2.includes(userId)) {
+          rows[i][3] = (wins + 1).toString();
+          rows[i][5] = (winsSeason + 1).toString();
+        } else {
+          rows[i][4] = (losses + 1).toString();
+          rows[i][6] = (lossesSeason + 1).toString();
+        }
+
+        break; // 현재 사용자 업데이트 완료
+      }
+    }
+  });
+
+  // 업데이트된 데이터 저장
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: SHEET_ID,
+    range,
+    valueInputOption: "USER_ENTERED",
+    resource: { values: rows },
+  });
+
+  console.log(`Updated stats for users: ${allUsers.join(", ")}`);
+}
+
 async function revokeStats(userId, isWin) {
   const sheets = await getSheetClient();
   const range = "STATS!A2:G"; // 전적 데이터 범위 (전체 데이터)
@@ -216,6 +268,58 @@ async function revokeStats(userId, isWin) {
   });
 }
 
+async function batchRevokeStats(team1, team2, winningTeam) {
+  const sheets = await getSheetClient();
+  const range = "STATS!A:G"; // 전적 데이터 범위
+
+  // Google Sheets 데이터 가져오기
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId: SHEET_ID,
+    range,
+  });
+
+  let rows = response.data.values;
+
+  // 팀 1과 팀 2 업데이트
+  const allUsers = [...team1, ...team2];
+
+  allUsers.forEach((userId) => {
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i][2] == userId) {
+        // user_id와 매칭
+        const wins = parseInt(rows[i][3]) || 0;
+        const losses = parseInt(rows[i][4]) || 0;
+        const winsSeason = parseInt(rows[i][5]) || 0;
+        const lossesSeason = parseInt(rows[i][6]) || 0;
+
+        // 승리 팀 및 패배 팀 업데이트 복구
+        if (winningTeam === "팀1" && team1.includes(userId)) {
+          rows[i][3] = (wins - 1).toString(); // 전체 승리 복구
+          rows[i][5] = (winsSeason - 1).toString(); // 시즌 승리 복구
+        } else if (winningTeam === "팀2" && team2.includes(userId)) {
+          rows[i][3] = (wins - 1).toString();
+          rows[i][5] = (winsSeason - 1).toString();
+        } else {
+          rows[i][4] = (losses - 1).toString(); // 전체 패배 복구
+          rows[i][6] = (lossesSeason - 1).toString(); // 시즌 패배 복구
+        }
+
+        break; // 현재 사용자 업데이트 완료
+      }
+    }
+  });
+
+  // 업데이트된 데이터 저장
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: SHEET_ID,
+    range,
+    valueInputOption: "USER_ENTERED",
+    resource: { values: rows },
+  });
+
+  console.log(`Reverted stats for users: ${allUsers.join(", ")}`);
+}
+
 module.exports = {
   getSheetClient,
   readFromSheet,
@@ -225,4 +329,6 @@ module.exports = {
   updateSheet,
   updateStats,
   revokeStats,
+  batchUpdateStats,
+  batchRevokeStats,
 };

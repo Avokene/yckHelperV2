@@ -3,7 +3,7 @@ const {
   getSheetClient,
   readFromSheet,
   deleteFromSheet,
-  revokeStats,
+  batchRevokeStats,
 } = require("../utils/googleSheets");
 const hasAdminPermission = require("../utils/checkAdmin"); // 관리자 권한 확인 함수
 
@@ -68,15 +68,7 @@ module.exports = {
       await deleteFromSheet("RECORDS", matchIndex + 2); // matchIndex는 0부터 시작, 헤더를 고려하여 +2
 
       // 전적 복구 로직 (team1, team2 데이터를 복구)
-      // Discord ID로 전적 복구
-      const winningTeam = winner === "팀1" ? team1Members : team2Members;
-      const lossingTeam = winner === "팀1" ? team2Members : team1Members;
-
-      // 전적 복구 로직 수행
-      await Promise.all([
-        ...lossingTeam.map(async (member) => adjustRecord(member, false)), // 패배 복구
-        ...winningTeam.map(async (member) => adjustRecord(member, true)), // 승리 복구
-      ]);
+      await batchRevokeStats(team1Members, team2Members, winner);
 
       // 응답 메시지
       const embed = new EmbedBuilder()
@@ -100,19 +92,3 @@ module.exports = {
     }
   },
 };
-
-/**
- * 전적 복구 함수
- * @param {string} member - 복구할 멤버 이름
- * @param {boolean} isWin - 승리 복구 여부
- */
-async function adjustRecord(member, isWin) {
-  // Google Sheets 또는 데이터베이스에서 해당 멤버의 전적 업데이트 로직
-  // 승리일 경우 승리 -1, 패배일 경우 패배 -1
-  console.log(
-    `Adjusting record for ${member}: ${isWin ? "Win -1" : "Loss -1"}`
-  );
-
-  // Google Sheets에서 전적 복구
-  await revokeStats(member, isWin);
-}

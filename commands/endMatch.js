@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require("discord.js");
-const { writeToSheet, updateStats } = require("../utils/googleSheets"); // Google Sheets 기록 함수
+const { writeToSheet, batchUpdateStats } = require("../utils/googleSheets"); // Google Sheets 기록 함수
 const fs = require("fs");
 const path = require("path");
 const ongoingMatchesPath = path.join(__dirname, "../data/ongoingMatches.json");
@@ -88,26 +88,7 @@ module.exports = {
       }
 
       // 팀원 정보 구성
-      const team1Members = await Promise.all(
-        match.team1.map(async (id) => {
-          // 승리 팀 플레이어의 승리 횟수 업데이트
-          if (winningTeam === "팀1") await updateStats(id, true);
-          else await updateStats(id, false);
-          console.log("Updated stats for", id);
-          const member = await interaction.guild.members.fetch(id);
-          return { id: id, displayName: member.displayName };
-        })
-      );
-
-      const team2Members = await Promise.all(
-        match.team2.map(async (id) => {
-          if (winningTeam === "팀2") await updateStats(id, true);
-          else await updateStats(id, false);
-          console.log("Updated stats for", id);
-          const member = await interaction.guild.members.fetch(id);
-          return { id: id, displayName: member.displayName };
-        })
-      );
+      await batchUpdateStats(match.team1, match.team2, winningTeam);
 
       // Google Sheets에 결과 기록
       const matchData = [
