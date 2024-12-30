@@ -47,6 +47,7 @@ module.exports = {
   ],
   async execute(interaction) {
     try {
+      ongoingMatches = loadOngoingMatches();
       const matchId = interaction.options.getInteger("match_id");
       const user = interaction.options.getUser("user");
       const team = interaction.options.getInteger("team");

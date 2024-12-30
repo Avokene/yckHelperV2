@@ -45,6 +45,7 @@ module.exports = {
   ],
   async execute(interaction) {
     try {
+      ongoingMatches = loadOngoingMatches();
       const matchId = interaction.options.getInteger("match_id").toString();
       const winningTeamOption = interaction.options.getInteger("winning_team");
       const userId = interaction.user.id;

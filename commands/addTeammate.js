@@ -15,7 +15,6 @@ const loadOngoingMatches = () => {
 const saveOngoingMatches = (data) => {
   fs.writeFileSync(ongoingMatchesPath, JSON.stringify(data, null, 2));
 };
-
 let ongoingMatches = loadOngoingMatches();
 
 module.exports = {
@@ -47,10 +46,11 @@ module.exports = {
   ],
   async execute(interaction) {
     try {
+      ongoingMatches = loadOngoingMatches();
       const matchId = interaction.options.getInteger("match_id").toString();
       const user = interaction.options.getUser("user");
       const team = interaction.options.getInteger("team");
-      
+
       const guild = interaction.guild;
       const member = await guild.members.fetch(user.id);
       const displayName = member.displayName;

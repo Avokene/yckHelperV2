@@ -64,6 +64,7 @@ module.exports = {
   ],
   async execute(interaction) {
     try {
+      ongoingMatches = loadOngoingMatches();
       const matchName = interaction.options.getString("name");
       const team1Leader = interaction.options.getUser("team1leader");
       const team2Leader = interaction.options.getUser("team2leader");
