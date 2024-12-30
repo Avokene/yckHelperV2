@@ -47,17 +47,27 @@ module.exports = {
         return;
       }
 
-      // 삭제 대상 데이터 추출
       const [match_id, team1Names, team1Ids, team2Names, team2Ids, winner] =
-        sheetData[matchIndex];
+        sheetData[matchIndex] || [];
+
+      // 데이터 검증
+      if (!team1Ids || !team2Ids || !winner) {
+        await interaction.reply({
+          content: `❌ 내전 ID ${matchId}에 대한 데이터가 불완전합니다. Google Sheets 데이터를 확인하세요.`,
+          ephemeral: true,
+        });
+        return;
+      }
+
+      // 팀 멤버 ID 분리
+      const team1Members = team1Ids.split(", ").filter((id) => id); // 비어 있는 ID 제외
+      const team2Members = team2Ids.split(", ").filter((id) => id); // 비어 있는 ID 제외
 
       // Google Sheets에서 데이터 삭제
       await deleteFromSheet("RECORDS", matchIndex + 2); // matchIndex는 0부터 시작, 헤더를 고려하여 +2
 
       // 전적 복구 로직 (team1, team2 데이터를 복구)
       // Discord ID로 전적 복구
-      const team1Members = team1Ids.split(", ");
-      const team2Members = team2Ids.split(", ");
       const winningTeam = winner === "팀1" ? team1Members : team2Members;
       const lossingTeam = winner === "팀1" ? team2Members : team1Members;
 
