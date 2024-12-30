@@ -66,6 +66,24 @@ async function deleteFromSheet(sheetName, rowIndex) {
   });
 }
 
+// Sheet 이름으로 Sheet ID 가져오는 함수 예제
+async function getSheetId(sheetName) {
+  const sheets = await getSheetClient();
+  const spreadsheet = await sheets.spreadsheets.get({
+    spreadsheetId: SHEET_ID,
+  });
+
+  const sheet = spreadsheet.data.sheets.find(
+    (s) => s.properties.title === sheetName
+  );
+
+  if (!sheet) {
+    throw new Error(`Sheet with name "${sheetName}" not found.`);
+  }
+
+  return sheet.properties.sheetId;
+}
+
 // 데이터 업데이트
 async function updateSheet(range, values) {
   const sheets = await getSheetClient();
