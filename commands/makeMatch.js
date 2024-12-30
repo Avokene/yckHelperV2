@@ -83,8 +83,8 @@ module.exports = {
         matchName,
         team1LeaderId: team1Leader.id,
         team2LeaderId: team2Leader.id,
-        team1: [], // 팀원 ID 저장
-        team2: [], // 팀원 ID 저장
+        team1: [team1Leader.id], // 팀원 ID 저장
+        team2: [team2Leader.id], // 팀원 ID 저장
       };
       saveOngoingMatches(ongoingMatches);
 
@@ -194,10 +194,14 @@ module.exports = {
           `내전 ${matchName} (${matchId}) 참가 종료!\n` +
           `**팀 1 (${await interaction.guild.members
             .fetch(currentMatch.team1LeaderId)
-            .then((m) => m.displayName)}):** ${team1Names.join(", ") || "없음"}\n` +
+            .then((m) => m.displayName)}):** ${
+            team1Names.join(", ") || "없음"
+          }\n` +
           `**팀 2 (${await interaction.guild.members
             .fetch(currentMatch.team2LeaderId)
-            .then((m) => m.displayName)}):** ${team2Names.join(", ") || "없음"}`;
+            .then((m) => m.displayName)}):** ${
+            team2Names.join(", ") || "없음"
+          }`;
         await interaction.followUp(summary);
         delete ongoingMatches[matchId]; // 내전 데이터 삭제
         saveOngoingMatches(ongoingMatches);
