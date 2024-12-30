@@ -133,6 +133,7 @@ async function updateStats(userId, isWin) {
   });
 
   let rows = response.data.values;
+  let updated = false;
 
   // 사용자 검색 및 업데이트
   for (let i = 0; i < rows.length; i++) {
@@ -150,8 +151,12 @@ async function updateStats(userId, isWin) {
         rows[i][4] = (losses + 1).toString(); // 전체 패배 증가
         rows[i][6] = (lossesSeason + 1).toString(); // 시즌 패배 증가
       }
-      break;
+      updated = true;
     }
+  }
+
+  if (!updated) {
+    console.warn("User not found in stats sheet:", userId);
   }
 
   // 업데이트된 데이터 다시 저장
@@ -174,6 +179,7 @@ async function revokeStats(userId, isWin) {
   });
 
   let rows = response.data.values;
+  let updated = false;
 
   // 사용자 검색 및 업데이트
   for (let i = 0; i < rows.length; i++) {
@@ -191,9 +197,14 @@ async function revokeStats(userId, isWin) {
         rows[i][4] = (losses - 1).toString(); // 전체 패배 감소
         rows[i][6] = (lossesSeason - 1).toString(); // 시즌 패배 감소
       }
-      break;
+      updated = true;
     }
   }
+
+  if (!updated) {
+    console.warn("User not found in stats sheet:", userId);
+  }
+
   // 업데이트된 데이터 다시 저장
   await sheets.spreadsheets.values.update({
     spreadsheetId: SHEET_ID,
