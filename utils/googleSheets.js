@@ -193,14 +193,14 @@ async function revokeStats(userId, isWin) {
       }
       break;
     }
+    // 업데이트된 데이터 다시 저장
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SHEET_ID,
+      range,
+      valueInputOption: "USER_ENTERED",
+      resource: { values: rows },
+    });
   }
-  // 업데이트된 데이터 다시 저장
-  await sheets.spreadsheets.values.update({
-    spreadsheetId: SHEET_ID,
-    range,
-    valueInputOption: "USER_ENTERED",
-    resource: { values: rows },
-  });
 }
 
 module.exports = {
