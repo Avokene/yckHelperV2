@@ -37,8 +37,10 @@ module.exports = {
 
       for (const matchId of matchIds) {
         const match = ongoingMatches[matchId];
-        const team1LeaderName = await guild.members.fetch(match.team1LeaderId).displayName; // 팀장 ID를 이름으로 변환
-        const team2LeaderName = await guild.members.fetch(match.team2LeaderId).displayName; // 팀장 ID를 이름으로 변환
+        const team1LeaderName = await guild.members.fetch(match.team1LeaderId)
+          .displayName; // 팀장 이름
+        const team2LeaderName = await guild.members.fetch(match.team2LeaderId)
+          .displayName; // 팀장 이름
 
         embed.addFields({
           name: `내전 ID: ${matchId}`,

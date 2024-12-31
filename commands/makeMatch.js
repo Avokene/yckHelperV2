@@ -208,8 +208,6 @@ module.exports = {
             team2Names.join(", ") || "없음"
           }`;
         await interaction.followUp(summary);
-        delete ongoingMatches[matchId]; // 내전 데이터 삭제
-        saveOngoingMatches(ongoingMatches);
       });
     } catch (error) {
       console.error("Error during match creation:", error);

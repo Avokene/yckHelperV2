@@ -38,20 +38,19 @@ module.exports = {
       }
 
       // 팀 구성 가져오기
-      const team1Members =
-        match.team1
-          .map(async (member) => {
-            let displayName = await interaction.guild.members.fetch(member);
-            return displayName;
-          })
-          .join(", ") || "없음";
-      const team2Members =
-        match.team2
-          .map(async (member) => {
-            let displayName = await interaction.guild.members.fetch(member);
-            return displayName;
-          })
-          .join(", ") || "없음";
+      const team1Names = await Promise.all(
+        match.team1.map(async (userId) => {
+          const member = await interaction.guild.members.fetch(userId);
+          return member.displayName;
+        })
+      );
+
+      const team2Names = await Promise.all(
+        match.team2.map(async (userId) => {
+          const member = await interaction.guild.members.fetch(userId);
+          return member.displayName;
+        })
+      );
 
       // Embed 메시지 생성
       const embed = new EmbedBuilder()
@@ -59,8 +58,8 @@ module.exports = {
         .setTitle(`내전 "${match.matchName}" 팀 구성`)
         .setDescription(`**내전 ID:** ${matchId}`)
         .addFields(
-          { name: "팀 1", value: team1Members, inline: true },
-          { name: "팀 2", value: team2Members, inline: true }
+          { name: "팀 1", value: team1Names, inline: true },
+          { name: "팀 2", value: team2Names, inline: true }
         )
         .setFooter({ text: "현재 내전 상태를 확인하세요!" });
 
