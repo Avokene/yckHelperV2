@@ -56,10 +56,10 @@ module.exports = {
       const embed = new EmbedBuilder()
         .setColor(0x0099ff)
         .setTitle(`내전 "${match.matchName}" 팀 구성`)
-        .setDescription(`**내전 ID:** ${matchId}`)
-        .addFields(
-          { name: "팀 1", value: team1Names, inline: true },
-          { name: "팀 2", value: team2Names, inline: true }
+        .setDescription(
+          `**내전 이름:** ${match.matchName}\n` +
+            `**팀 1 인원:** ${team1Names.join(", ") || "없음"}\n` +
+            `**팀 2 인원:** ${team2Names.join(", ") || "없음"}`
         )
         .setFooter({ text: "현재 내전 상태를 확인하세요!" });
 

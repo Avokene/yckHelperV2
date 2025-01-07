@@ -185,6 +185,31 @@ async function batchUpdateStats(team1, team2, winningTeam) {
   const allUsers = [...team1, ...team2];
 
   allUsers.forEach((userId) => {
+    let userRowIndex = -1;
+
+    // STATS 테이블에서 유저 ID를 검색
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i][2] == userId) {
+        userRowIndex = i;
+        break;
+      }
+    }
+
+    if (userRowIndex === -1) {
+      // 새로운 유저 발견: 기본값으로 추가
+      const newUserRow = [
+        (rows.length + 1).toString(), // 새로운 ID (행 번호 사용)
+        "Unknown", // 기본 이름 (필요하면 업데이트)
+        userId, // Discord ID
+        "0", // 총 승
+        "0", // 총 패
+        "0", // 시즌 승
+        "0", // 시즌 패
+      ];
+      rows.push(newUserRow);
+      userRowIndex = rows.length - 1; // 새로 추가된 유저의 인덱스
+    }
+
     for (let i = 0; i < rows.length; i++) {
       if (rows[i][2] == userId) {
         // user_id와 매칭
@@ -320,6 +345,11 @@ async function batchRevokeStats(team1, team2, winningTeam) {
   console.log(`Reverted stats for users: ${allUsers.join(", ")}`);
 }
 
+async function addUserRecord(userId, displayName) {
+  const newRecord = ["", displayName, userId, 0, 0, 0, 0]; // ID, 이름, 시즌승, 시즌패, 총승, 총패
+  await appendToSheet("STATS", newRecord); // Google Sheets의 STATS 시트에 추가
+}
+
 module.exports = {
   getSheetClient,
   readFromSheet,
@@ -331,4 +361,5 @@ module.exports = {
   revokeStats,
   batchUpdateStats,
   batchRevokeStats,
+  addUserRecord,
 };
