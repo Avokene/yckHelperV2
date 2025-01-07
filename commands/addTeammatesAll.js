@@ -126,18 +126,6 @@ module.exports = {
         .setTitle(`✅ 팀 ${team}에 4명의 사용자가 추가되었습니다.`)
         .setDescription(
           `**내전 이름:** ${match.matchName}\n` +
-            `**추가된 사용자:** ${
-              addedUsers.length > 0
-                ? addedUsers.map((id) => `<@${id}>`).join(", ")
-                : "없음"
-            }\n` +
-            `${
-              alreadyInTeam.length > 0
-                ? `**이미 다른 팀에 있는 사용자:** ${alreadyInTeam
-                    .map((id) => `<@${id}>`)
-                    .join(", ")}\n`
-                : ""
-            }` +
             `**팀 1 인원:** ${team1Names.join(", ") || "없음"}\n` +
             `**팀 2 인원:** ${team2Names.join(", ") || "없음"}`
         );
