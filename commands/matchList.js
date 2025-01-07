@@ -40,7 +40,7 @@ module.exports = {
         const member1 = await guild.members.fetch(match.team1LeaderId);
         const team1LeaderName = member1.displayName; // 팀장 이름
         const member2 = await guild.members.fetch(match.team2LeaderId);
-        const team2LeaderName = member1.displayName; // 팀장 이름
+        const team2LeaderName = member2.displayName; // 팀장 이름
 
         embed.addFields({
           name: `내전 ID: ${matchId}`,
