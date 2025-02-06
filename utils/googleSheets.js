@@ -370,6 +370,31 @@ async function getUserScore(userId) {
   return userRecord ? userRecord[7] : null; // 점수가 없으면 null 반환
 }
 
+// STATS 시트에서 모든 사용자 전적 가져오는 함수
+async function getAllUserRecords() {
+  const sheets = await getSheetClient();
+  const range = "STATS!A:G"; // STATS 시트의 전체 데이터 가져오기
+
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId: SHEET_ID,
+    range,
+  });
+
+  const rows = response.data.values || [];
+
+  if (rows.length < 2) return []; // 데이터가 없으면 빈 배열 반환
+
+  return rows.slice(1).map((row) => ({
+    id: row[0],
+    name: row[1],
+    userId: row[2],
+    wins: row[3] || "0",
+    losses: row[4] || "0",
+    winsSeason: row[5] || "0",
+    lossesSeason: row[6] || "0",
+  }));
+}
+
 module.exports = {
   getSheetClient,
   readFromSheet,
@@ -383,4 +408,5 @@ module.exports = {
   batchRevokeStats,
   addUserRecord,
   getUserScore,
+  getAllUserRecords,
 };
