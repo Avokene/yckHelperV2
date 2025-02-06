@@ -1,4 +1,4 @@
-const { searchUserRecordById } = require("../utils/googleSheets");
+const { searchUserRecordById, getUserScore } = require("../utils/googleSheets");
 
 module.exports = {
   name: "전적", // 명령어 이름
@@ -18,17 +18,27 @@ module.exports = {
       const guildMember = await interaction.guild.members.fetch(targetUser.id); // 서버 멤버 정보 가져오기
       const displayName = guildMember.displayName; // 서버 Display Name 가져오기
 
-      const record = await searchUserRecordById(targetUser.id); // Google Sheets에서 ID로 검색
+      // Google Sheets에서 전적 검색
+      const record = await searchUserRecordById(targetUser.id);
+      // Google Sheets에서 score 정보 검색
+      const score = await getUserScore(targetUser.id);
 
       if (record) {
-        const replyMessage =
+        let replyMessage =
           `📊 **${displayName}님의 전적**\n` +
           `\`\`\`yaml\n` +
           `시즌승: ${record.winsSeason}\n` +
           `시즌패: ${record.lossesSeason}\n` +
           `승: ${record.wins}\n` +
-          `패: ${record.losses}\n` +
-          `\`\`\``;
+          `패: ${record.losses}\n`;
+
+        // score 정보가 존재할 경우 추가
+        if (score !== null) {
+          replyMessage += `리그전 점수: ${score}\n`;
+        }
+
+        replyMessage += `\`\`\``;
+
         await interaction.reply(replyMessage); // 검색 결과 응답
       } else {
         await interaction.reply(

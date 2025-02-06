@@ -169,7 +169,7 @@ async function updateStats(userId, isWin) {
   });
 }
 
-async function batchUpdateStats(team1, team2, winningTeam) {
+async function batchUpdateStats(team1, team2, winningTeam, interaction) {
   const sheets = await getSheetClient();
   const range = "STATS!A:G"; // 전적 데이터 범위
 
@@ -180,11 +180,9 @@ async function batchUpdateStats(team1, team2, winningTeam) {
   });
 
   let rows = response.data.values;
-
-  // 팀 1과 팀 2 업데이트
   const allUsers = [...team1, ...team2];
 
-  allUsers.forEach((userId) => {
+  for (const userId of allUsers) {
     let userRowIndex = -1;
 
     // STATS 테이블에서 유저 ID를 검색
@@ -196,10 +194,19 @@ async function batchUpdateStats(team1, team2, winningTeam) {
     }
 
     if (userRowIndex === -1) {
-      // 새로운 유저 발견: 기본값으로 추가
+      // 새로운 유저 발견: Discord에서 닉네임 가져오기
+      let displayName = "Unknown"; // 기본값
+      try {
+        const member = await interaction.guild.members.fetch(userId);
+        displayName = member ? member.displayName : "Unknown"; // 닉네임 설정
+      } catch (error) {
+        console.warn(`유저 ID ${userId}의 닉네임을 불러올 수 없습니다.`);
+      }
+
+      // 신규 유저 추가
       const newUserRow = [
         (rows.length + 1).toString(), // 새로운 ID (행 번호 사용)
-        "Unknown", // 기본 이름 (필요하면 업데이트)
+        displayName, // Discord 닉네임
         userId, // Discord ID
         "0", // 총 승
         "0", // 총 패
@@ -210,30 +217,25 @@ async function batchUpdateStats(team1, team2, winningTeam) {
       userRowIndex = rows.length - 1; // 새로 추가된 유저의 인덱스
     }
 
-    for (let i = 0; i < rows.length; i++) {
-      if (rows[i][2] == userId) {
-        // user_id와 매칭
-        const wins = parseInt(rows[i][3]) || 0;
-        const losses = parseInt(rows[i][4]) || 0;
-        const winsSeason = parseInt(rows[i][5]) || 0;
-        const lossesSeason = parseInt(rows[i][6]) || 0;
+    // 기존 유저 전적 업데이트
+    if (userRowIndex !== -1) {
+      const wins = parseInt(rows[userRowIndex][3]) || 0;
+      const losses = parseInt(rows[userRowIndex][4]) || 0;
+      const winsSeason = parseInt(rows[userRowIndex][5]) || 0;
+      const lossesSeason = parseInt(rows[userRowIndex][6]) || 0;
 
-        // 승리 팀 및 패배 팀 업데이트
-        if (winningTeam === "팀1" && team1.includes(userId)) {
-          rows[i][3] = (wins + 1).toString();
-          rows[i][5] = (winsSeason + 1).toString();
-        } else if (winningTeam === "팀2" && team2.includes(userId)) {
-          rows[i][3] = (wins + 1).toString();
-          rows[i][5] = (winsSeason + 1).toString();
-        } else {
-          rows[i][4] = (losses + 1).toString();
-          rows[i][6] = (lossesSeason + 1).toString();
-        }
-
-        break; // 현재 사용자 업데이트 완료
+      if (winningTeam === "팀1" && team1.includes(userId)) {
+        rows[userRowIndex][3] = (wins + 1).toString();
+        rows[userRowIndex][5] = (winsSeason + 1).toString();
+      } else if (winningTeam === "팀2" && team2.includes(userId)) {
+        rows[userRowIndex][3] = (wins + 1).toString();
+        rows[userRowIndex][5] = (winsSeason + 1).toString();
+      } else {
+        rows[userRowIndex][4] = (losses + 1).toString();
+        rows[userRowIndex][6] = (lossesSeason + 1).toString();
       }
     }
-  });
+  }
 
   // 업데이트된 데이터 저장
   await sheets.spreadsheets.values.update({
@@ -348,6 +350,24 @@ async function batchRevokeStats(team1, team2, winningTeam) {
 async function addUserRecord(userId, displayName) {
   const newRecord = ["", displayName, userId, 0, 0, 0, 0]; // ID, 이름, 시즌승, 시즌패, 총승, 총패
   await appendToSheet("STATS", newRecord); // Google Sheets의 STATS 시트에 추가
+}
+
+// 리그전 점수를 가져오는 함수
+async function getUserScore(userId) {
+  const sheets = await getSheetClient();
+  const range = "STATS!A:H"; // SCORE 탭에서 ID와 점수 가져오기
+
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId: SHEET_ID,
+    range,
+  });
+
+  const rows = response.data.values || [];
+
+  // 첫 번째 행(헤더)을 제외하고 검색
+  const userRecord = rows.slice(1).find((row) => row[2] == userId); // A열에 ID가 있다고 가정
+
+  return userRecord ? userRecord[7] : null; // 점수가 없으면 null 반환
 }
 
 module.exports = {
