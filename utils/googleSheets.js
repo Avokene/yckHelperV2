@@ -382,4 +382,5 @@ module.exports = {
   batchUpdateStats,
   batchRevokeStats,
   addUserRecord,
+  getUserScore,
 };
