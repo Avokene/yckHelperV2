@@ -88,7 +88,7 @@ module.exports = {
       }
 
       // 팀원 정보 구성
-      await batchUpdateStats(match.team1, match.team2, winningTeam);
+      await batchUpdateStats(match.team1, match.team2, winningTeam, interaction);
 
       // 팀원 이름 가져오기
       const team1Members = await Promise.all(
