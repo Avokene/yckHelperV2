@@ -24,17 +24,19 @@ module.exports = {
 
       // 다전왕(총 경기 수 기준)
       records.sort(
-        (a, b) => b.totalGames - a.totalGames || b.losses - a.losses
+        (a, b) => b.totalGames - a.totalGames || (b.wins - b.losses) - (a.wins - a.losses)
       );
       const championMostGames = records.shift(); // 첫 번째 요소를 다전왕으로 선정
 
       // 다승왕(승리 수 기준)
-      records.sort((a, b) => b.wins - a.wins || b.losses - a.losses);
-      const championMostWins = records.shift(); // 다전왕과 중복되지 않은 첫 번째 요소 선정
+      records.sort((a, b) => b.wins - a.wins || (b.wins - b.losses) - (a.wins - a.losses));
+      const championMostWins = records.shift(); // 중복방지
 
       // 다패왕(패배 수 기준)
-      records.sort((a, b) => b.losses - a.losses);
-      const championMostLosses = records.shift(); // 다전왕, 다승왕과 중복되지 않은 첫 번째 요소 선정
+      records.sort((a, b) => 
+        b.losses - a.losses || (b.wins - b.losses) - (a.wins - a.losses)
+      );
+      const championMostLosses = records.shift(); // 중복방지
 
       // 메시지 구성
       let resultMessage = `🏆 **시즌 시상** 🏆\n`;
